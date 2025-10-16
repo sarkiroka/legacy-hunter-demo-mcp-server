@@ -5,37 +5,38 @@ import { z } from "zod";
 // Define our MCP agent with API tools
 export class MyMCP extends McpAgent {
     server = new McpServer({
-        name: "Swagger Petstore - OpenAPI 3.0",
+        name: "Swagger Petstore API",
         version: "1.0.12",
     });
 
     private baseUrl = "https://petstore3.swagger.io/api/v3";
 
     async init() {
-        // Pet endpoints
+        // MCP tools based on OpenAPI endpoints
         this.server.tool(
             "addPet",
             {
                 pet: z.object({
-                    name: z.string(),
-                    photoUrls: z.array(z.string()),
+                    id: z.number().optional(),
+                    name: z.string().describe("Pet name"),
                     category: z.object({
                         id: z.number().optional(),
-                        name: z.string().optional(),
+                        name: z.string().optional()
                     }).optional(),
+                    photoUrls: z.array(z.string()).describe("Array of pet photo URLs"),
                     tags: z.array(z.object({
                         id: z.number().optional(),
-                        name: z.string().optional(),
+                        name: z.string().optional()
                     })).optional(),
-                    status: z.enum(["available", "pending", "sold"]).optional(),
-                }).describe("Pet object to add"),
+                    status: z.enum(["available", "pending", "sold"]).optional()
+                }),
             },
             async ({ pet }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/pet`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(pet),
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(pet)
                     });
                     const result = await response.json();
                     return {
@@ -43,7 +44,10 @@ export class MyMCP extends McpAgent {
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -53,26 +57,26 @@ export class MyMCP extends McpAgent {
             "updatePet",
             {
                 pet: z.object({
-                    id: z.number(),
-                    name: z.string(),
-                    photoUrls: z.array(z.string()),
+                    id: z.number().describe("Pet ID"),
+                    name: z.string().optional(),
                     category: z.object({
                         id: z.number().optional(),
-                        name: z.string().optional(),
+                        name: z.string().optional()
                     }).optional(),
+                    photoUrls: z.array(z.string()).optional(),
                     tags: z.array(z.object({
                         id: z.number().optional(),
-                        name: z.string().optional(),
+                        name: z.string().optional()
                     })).optional(),
-                    status: z.enum(["available", "pending", "sold"]).optional(),
-                }).describe("Pet object to update"),
+                    status: z.enum(["available", "pending", "sold"]).optional()
+                }),
             },
             async ({ pet }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/pet`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(pet),
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(pet)
                     });
                     const result = await response.json();
                     return {
@@ -80,7 +84,10 @@ export class MyMCP extends McpAgent {
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -89,18 +96,23 @@ export class MyMCP extends McpAgent {
         this.server.tool(
             "findPetsByStatus",
             {
-                status: z.string().optional().describe("Comma-separated list of pet statuses"),
+                status: z.string().optional().describe("Status values to filter pets"),
             },
-            async ({ status = 'available' }) => {
+            async ({ status }) => {
                 try {
-                    const response = await fetch(`${this.baseUrl}/pet/findByStatus?status=${status}`);
+                    const response = await fetch(`${this.baseUrl}/pet/findByStatus?status=${status}`, {
+                        method: "GET"
+                    });
                     const result = await response.json();
                     return {
                         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -109,19 +121,23 @@ export class MyMCP extends McpAgent {
         this.server.tool(
             "findPetsByTags",
             {
-                tags: z.array(z.string()).optional().describe("Comma-separated list of tags"),
+                tags: z.array(z.string()).optional().describe("Tags to filter pets"),
             },
             async ({ tags }) => {
-                const tagsParam = tags ? tags.join(',') : '';
                 try {
-                    const response = await fetch(`${this.baseUrl}/pet/findByTags?tags=${tagsParam}`);
+                    const response = await fetch(`${this.baseUrl}/pet/findByTags?tags=${tags.join(',')}`, {
+                        method: "GET"
+                    });
                     const result = await response.json();
                     return {
                         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -130,18 +146,23 @@ export class MyMCP extends McpAgent {
         this.server.tool(
             "getPetById",
             {
-                petId: z.number().describe("ID of the pet to fetch"),
+                petId: z.number().describe("ID of pet to return"),
             },
             async ({ petId }) => {
                 try {
-                    const response = await fetch(`${this.baseUrl}/pet/${petId}`);
+                    const response = await fetch(`${this.baseUrl}/pet/${petId}`, {
+                        method: "GET"
+                    });
                     const result = await response.json();
                     return {
                         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -150,18 +171,16 @@ export class MyMCP extends McpAgent {
         this.server.tool(
             "updatePetWithForm",
             {
-                petId: z.number().describe("ID of the pet to update"),
-                name: z.string().optional().describe("New name for the pet"),
-                status: z.string().optional().describe("New status for the pet"),
+                petId: z.number().describe("ID of pet to update"),
+                name: z.string().optional().describe("Pet name"),
+                status: z.string().optional().describe("Pet status"),
             },
             async ({ petId, name, status }) => {
-                const formData = new URLSearchParams();
-                if (name) formData.append('name', name);
-                if (status) formData.append('status', status);
                 try {
                     const response = await fetch(`${this.baseUrl}/pet/${petId}`, {
-                        method: 'POST',
-                        body: formData,
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: new URLSearchParams({ name, status })
                     });
                     const result = await response.json();
                     return {
@@ -169,7 +188,10 @@ export class MyMCP extends McpAgent {
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -178,21 +200,22 @@ export class MyMCP extends McpAgent {
         this.server.tool(
             "deletePet",
             {
-                petId: z.number().describe("ID of the pet to delete"),
-                api_key: z.string().optional().describe("API key for authorization"),
+                petId: z.number().describe("Pet ID to delete"),
             },
-            async ({ petId, api_key }) => {
+            async ({ petId }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/pet/${petId}`, {
-                        method: 'DELETE',
-                        headers: { 'api_key': api_key || '' },
+                        method: "DELETE"
                     });
                     return {
-                        content: [{ type: "text", text: `Pet deleted successfully` }],
+                        content: [{ type: "text", text: "Pet deleted successfully" }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -201,18 +224,20 @@ export class MyMCP extends McpAgent {
         this.server.tool(
             "uploadFile",
             {
-                petId: z.number().describe("ID of the pet to update"),
+                petId: z.number().describe("ID of pet to update"),
                 additionalMetadata: z.string().optional().describe("Additional metadata"),
                 file: z.instanceof(File).describe("File to upload"),
             },
             async ({ petId, additionalMetadata, file }) => {
                 const formData = new FormData();
-                if (additionalMetadata) formData.append('additionalMetadata', additionalMetadata);
-                formData.append('file', file);
+                formData.append("file", file);
+                if (additionalMetadata) {
+                    formData.append("additionalMetadata", additionalMetadata);
+                }
                 try {
                     const response = await fetch(`${this.baseUrl}/pet/${petId}/uploadImage`, {
-                        method: 'POST',
-                        body: formData,
+                        method: "POST",
+                        body: formData
                     });
                     const result = await response.json();
                     return {
@@ -220,26 +245,33 @@ export class MyMCP extends McpAgent {
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
         );
 
-        // Store endpoints
         this.server.tool(
             "getInventory",
             {},
             async () => {
                 try {
-                    const response = await fetch(`${this.baseUrl}/store/inventory`);
+                    const response = await fetch(`${this.baseUrl}/store/inventory`, {
+                        method: "GET"
+                    });
                     const result = await response.json();
                     return {
                         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -249,19 +281,20 @@ export class MyMCP extends McpAgent {
             "placeOrder",
             {
                 order: z.object({
-                    petId: z.number(),
-                    quantity: z.number(),
-                    shipDate: z.string().optional(),
-                    status: z.enum(["placed", "approved", "delivered"]).optional(),
-                    complete: z.boolean().optional(),
-                }).describe("Order object to place"),
+                    id: z.number().optional(),
+                    petId: z.number().describe("Pet ID"),
+                    quantity: z.number().describe("Order quantity"),
+                    shipDate: z.string().optional().describe("Shipping date"),
+                    status: z.enum(["placed", "approved", "delivered"]).describe("Order status"),
+                    complete: z.boolean().describe("Is order complete?"),
+                }),
             },
             async ({ order }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/store/order`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(order),
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(order)
                     });
                     const result = await response.json();
                     return {
@@ -269,7 +302,10 @@ export class MyMCP extends McpAgent {
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -278,18 +314,23 @@ export class MyMCP extends McpAgent {
         this.server.tool(
             "getOrderById",
             {
-                orderId: z.number().describe("ID of the order to fetch"),
+                orderId: z.number().describe("ID of order to fetch"),
             },
             async ({ orderId }) => {
                 try {
-                    const response = await fetch(`${this.baseUrl}/store/order/${orderId}`);
+                    const response = await fetch(`${this.baseUrl}/store/order/${orderId}`, {
+                        method: "GET"
+                    });
                     const result = await response.json();
                     return {
                         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -298,45 +339,47 @@ export class MyMCP extends McpAgent {
         this.server.tool(
             "deleteOrder",
             {
-                orderId: z.number().describe("ID of the order to delete"),
+                orderId: z.number().describe("ID of order to delete"),
             },
             async ({ orderId }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/store/order/${orderId}`, {
-                        method: 'DELETE',
+                        method: "DELETE"
                     });
                     return {
-                        content: [{ type: "text", text: `Order deleted successfully` }],
+                        content: [{ type: "text", text: "Order deleted successfully" }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
         );
 
-        // User endpoints
         this.server.tool(
             "createUser",
             {
                 user: z.object({
                     id: z.number().optional(),
-                    username: z.string(),
-                    firstName: z.string(),
-                    lastName: z.string(),
-                    email: z.string(),
-                    password: z.string(),
-                    phone: z.string(),
-                    userStatus: z.number().optional(),
-                }).describe("User object to create"),
+                    username: z.string().describe("User's username"),
+                    firstName: z.string().optional(),
+                    lastName: z.string().optional(),
+                    email: z.string().optional(),
+                    password: z.string().optional(),
+                    phone: z.string().optional(),
+                    userStatus: z.number().optional().describe("User status"),
+                }),
             },
             async ({ user }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/user`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(user),
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(user)
                     });
                     const result = await response.json();
                     return {
@@ -344,7 +387,10 @@ export class MyMCP extends McpAgent {
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -355,21 +401,21 @@ export class MyMCP extends McpAgent {
             {
                 users: z.array(z.object({
                     id: z.number().optional(),
-                    username: z.string(),
-                    firstName: z.string(),
-                    lastName: z.string(),
-                    email: z.string(),
-                    password: z.string(),
-                    phone: z.string(),
-                    userStatus: z.number().optional(),
-                })).describe("List of user objects to create"),
+                    username: z.string().describe("User's username"),
+                    firstName: z.string().optional(),
+                    lastName: z.string().optional(),
+                    email: z.string().optional(),
+                    password: z.string().optional(),
+                    phone: z.string().optional(),
+                    userStatus: z.number().optional().describe("User status"),
+                })).describe("Array of user objects"),
             },
             async ({ users }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/user/createWithList`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(users),
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(users)
                     });
                     const result = await response.json();
                     return {
@@ -377,45 +423,10 @@ export class MyMCP extends McpAgent {
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
-                    };
-                }
-            }
-        );
-
-        this.server.tool(
-            "loginUser",
-            {
-                username: z.string().describe("Username for login"),
-                password: z.string().describe("Password for login"),
-            },
-            async ({ username, password }) => {
-                try {
-                    const response = await fetch(`${this.baseUrl}/user/login?username=${username}&password=${password}`);
-                    const result = await response.json();
-                    return {
-                        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-                    };
-                } catch (error) {
-                    return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
-                    };
-                }
-            }
-        );
-
-        this.server.tool(
-            "logoutUser",
-            {},
-            async () => {
-                try {
-                    const response = await fetch(`${this.baseUrl}/user/logout`);
-                    return {
-                        content: [{ type: "text", text: `Logged out successfully` }],
-                    };
-                } catch (error) {
-                    return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -428,14 +439,19 @@ export class MyMCP extends McpAgent {
             },
             async ({ username }) => {
                 try {
-                    const response = await fetch(`${this.baseUrl}/user/${username}`);
+                    const response = await fetch(`${this.baseUrl}/user/${username}`, {
+                        method: "GET"
+                    });
                     const result = await response.json();
                     return {
                         content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -447,28 +463,31 @@ export class MyMCP extends McpAgent {
                 username: z.string().describe("Username to update"),
                 user: z.object({
                     id: z.number().optional(),
-                    username: z.string(),
-                    firstName: z.string(),
-                    lastName: z.string(),
-                    email: z.string(),
-                    password: z.string(),
-                    phone: z.string(),
-                    userStatus: z.number().optional(),
-                }).describe("User object to update"),
+                    username: z.string().optional(),
+                    firstName: z.string().optional(),
+                    lastName: z.string().optional(),
+                    email: z.string().optional(),
+                    password: z.string().optional(),
+                    phone: z.string().optional(),
+                    userStatus: z.number().optional().describe("User status"),
+                }),
             },
             async ({ username, user }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/user/${username}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(user),
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(user)
                     });
                     return {
-                        content: [{ type: "text", text: `User updated successfully` }],
+                        content: [{ type: "text", text: "User updated successfully" }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
@@ -482,14 +501,17 @@ export class MyMCP extends McpAgent {
             async ({ username }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/user/${username}`, {
-                        method: 'DELETE',
+                        method: "DELETE"
                     });
                     return {
-                        content: [{ type: "text", text: `User deleted successfully` }],
+                        content: [{ type: "text", text: "User deleted successfully" }],
                     };
                 } catch (error) {
                     return {
-                        content: [{ type: "text", text: `Error: ${error instanceof Error ? error.message : String(error)}` }],
+                        content: [{
+                            type: "text",
+                            text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                        }],
                     };
                 }
             }
