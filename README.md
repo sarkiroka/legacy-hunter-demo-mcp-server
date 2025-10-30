@@ -1,13 +1,13 @@
 # Pharmaceutical Patents API
 
 ## API Purpose
-This API allows users to access and manage pharmaceutical patents and their inventors.
+This API allows users to access and manage pharmaceutical patents and their inventors efficiently.
 
 ## Endpoints Description
 
-### Get All Patents (GET /patents)
+### 1. Get all patents (GET /patents)
 - **Description**: Retrieves a list of all patents.
-- **Example Request**: `GET https://patents-openapi.helga-eross.workers.dev/patents`
+- **Example Request**: `GET /patents`
 - **Example Response**:
   ```json
   [
@@ -15,33 +15,32 @@ This API allows users to access and manage pharmaceutical patents and their inve
           "id": "1",
           "publication_number": "20170183334",
           "title": "DASATINIB SALTS",
-          "abstract": "An innovative salt form of Dasatinib.",
+          "abstract": "Abstract of the patent.",
           "type": "Application",
           "filing_date": "2017-01-01",
-          "publication_date": "2017-01-10",
+          "publication_date": "2017-01-02",
           "applicant": "EGIS GYOGYSZERGYAR ZRT",
           "assignee": "EGIS GYOGYSZERGYAR ZRT",
           "inventors": ["Kara Pál", "Nagy Péter"],
-          "created_at": "2022-01-01T00:00:00Z",
-          "updated_at": "2022-01-01T00:00:00Z"
+          "created_at": "2021-01-01T00:00:00Z",
+          "updated_at": "2021-01-01T00:00:00Z"
       }
   ]
   ```
 - **HTTP Status Codes**:
-  - `200`: Successful retrieval of patents.
+  - `200`: Success
 
-### Add New Patent (POST /patents)
-- **Description**: Adds a new patent to the system.
+### 2. Add new patent (POST /patents)
+- **Description**: Adds a new patent to the database.
 - **Example Request**:
   ```json
-  POST https://patents-openapi.helga-eross.workers.dev/patents
   {
       "publication_number": "20170183334",
       "title": "DASATINIB SALTS",
-      "abstract": "An innovative salt form of Dasatinib.",
+      "abstract": "Abstract of the patent.",
       "type": "Application",
       "filing_date": "2017-01-01",
-      "publication_date": "2017-01-10",
+      "publication_date": "2017-01-02",
       "applicant": "EGIS GYOGYSZERGYAR ZRT",
       "assignee": "EGIS GYOGYSZERGYAR ZRT",
       "inventors": ["Kara Pál", "Nagy Péter"]
@@ -53,54 +52,51 @@ This API allows users to access and manage pharmaceutical patents and their inve
       "id": "1",
       "publication_number": "20170183334",
       "title": "DASATINIB SALTS",
-      "abstract": "An innovative salt form of Dasatinib.",
+      "abstract": "Abstract of the patent.",
       "type": "Application",
       "filing_date": "2017-01-01",
-      "publication_date": "2017-01-10",
+      "publication_date": "2017-01-02",
       "applicant": "EGIS GYOGYSZERGYAR ZRT",
       "assignee": "EGIS GYOGYSZERGYAR ZRT",
       "inventors": ["Kara Pál", "Nagy Péter"],
-      "created_at": "2022-01-01T00:00:00Z",
-      "updated_at": "2022-01-01T00:00:00Z"
+      "created_at": "2021-01-01T00:00:00Z",
+      "updated_at": "2021-01-01T00:00:00Z"
   }
   ```
 - **HTTP Status Codes**:
-  - `201`: Patent added successfully.
-  - `400`: Bad request.
+  - `201`: Patent added successfully
+  - `400`: Bad request
 
-### Get Patent by Publication Number (GET /patents/{patentNumber})
-- **Description**: Retrieves details of a specific patent by its publication number.
-- **Example Request**: `GET https://patents-openapi.helga-eross.workers.dev/patents/20170183334`
+### 3. Get patent by publication number (GET /patents/{patentNumber})
+- **Description**: Retrieves details of a patent by its publication number.
+- **Example Request**: `GET /patents/20170183334`
 - **Example Response**:
   ```json
   {
       "id": "1",
       "publication_number": "20170183334",
       "title": "DASATINIB SALTS",
-      "abstract": "An innovative salt form of Dasatinib.",
+      "abstract": "Abstract of the patent.",
       "type": "Application",
       "filing_date": "2017-01-01",
-      "publication_date": "2017-01-10",
+      "publication_date": "2017-01-02",
       "applicant": "EGIS GYOGYSZERGYAR ZRT",
       "assignee": "EGIS GYOGYSZERGYAR ZRT",
       "inventors": ["Kara Pál", "Nagy Péter"],
-      "created_at": "2022-01-01T00:00:00Z",
-      "updated_at": "2022-01-01T00:00:00Z"
+      "created_at": "2021-01-01T00:00:00Z",
+      "updated_at": "2021-01-01T00:00:00Z"
   }
   ```
-- **Parameter Explanation**:
-  - `patentNumber`: Patent publication number (required).
 - **HTTP Status Codes**:
-  - `200`: Successful retrieval of patent details.
-  - `404`: Patent not found.
+  - `200`: Success
+  - `404`: Patent not found
 
-### Update Patent (PUT /patents/{patentNumber})
+### 4. Update patent (PUT /patents/{patentNumber})
 - **Description**: Updates an existing patent.
 - **Example Request**:
   ```json
-  PUT https://patents-openapi.helga-eross.workers.dev/patents/20170183334
   {
-      "title": "UPDATED DASATINIB SALTS"
+      "title": "UPDATED TITLE"
   }
   ```
 - **Example Response**:
@@ -108,43 +104,34 @@ This API allows users to access and manage pharmaceutical patents and their inve
   {
       "id": "1",
       "publication_number": "20170183334",
-      "title": "UPDATED DASATINIB SALTS",
-      "abstract": "An innovative salt form of Dasatinib.",
+      "title": "UPDATED TITLE",
+      "abstract": "Abstract of the patent.",
       "type": "Application",
       "filing_date": "2017-01-01",
-      "publication_date": "2017-01-10",
+      "publication_date": "2017-01-02",
       "applicant": "EGIS GYOGYSZERGYAR ZRT",
       "assignee": "EGIS GYOGYSZERGYAR ZRT",
       "inventors": ["Kara Pál", "Nagy Péter"],
-      "created_at": "2022-01-01T00:00:00Z",
-      "updated_at": "2022-01-01T00:00:00Z"
+      "created_at": "2021-01-01T00:00:00Z",
+      "updated_at": "2021-01-01T00:00:00Z"
   }
   ```
-- **Parameter Explanation**:
-  - `patentNumber`: Patent publication number (required).
 - **HTTP Status Codes**:
-  - `200`: Patent updated successfully.
-  - `400`: Bad request.
-  - `404`: Patent not found.
+  - `200`: Patent updated successfully
+  - `400`: Bad request
+  - `404`: Patent not found
 
-### Delete Patent (DELETE /patents/{patentNumber})
-- **Description**: Deletes a specific patent.
-- **Example Request**: `DELETE https://patents-openapi.helga-eross.workers.dev/patents/20170183334`
-- **Example Response**:
-  ```json
-  {
-      "message": "Patent 20170183334 deleted successfully."
-  }
-  ```
-- **Parameter Explanation**:
-  - `patentNumber`: Patent publication number (required).
+### 5. Delete patent (DELETE /patents/{patentNumber})
+- **Description**: Deletes a patent from the database.
+- **Example Request**: `DELETE /patents/20170183334`
+- **Example Response**: No content returned.
 - **HTTP Status Codes**:
-  - `204`: Patent deleted successfully.
-  - `404`: Patent not found.
+  - `204`: Patent deleted successfully
+  - `404`: Patent not found
 
-### Get All Inventors (GET /inventors)
+### 6. Get all inventors (GET /inventors)
 - **Description**: Retrieves a list of all inventors.
-- **Example Request**: `GET https://patents-openapi.helga-eross.workers.dev/inventors`
+- **Example Request**: `GET /inventors`
 - **Example Response**:
   ```json
   [
@@ -152,36 +139,34 @@ This API allows users to access and manage pharmaceutical patents and their inve
           "id": "1",
           "name": "Kara Pál",
           "email": "kara.pal@gmail.com",
-          "created_at": "2022-01-01T00:00:00Z",
-          "updated_at": "2022-01-01T00:00:00Z"
+          "created_at": "2021-01-01T00:00:00Z",
+          "updated_at": "2021-01-01T00:00:00Z"
       }
   ]
   ```
 - **HTTP Status Codes**:
-  - `200`: Successful retrieval of inventors.
+  - `200`: Success
 
-### Get Inventor by ID or Email (GET /inventors/{identifier})
-- **Description**: Retrieves details of a specific inventor by their ID or email.
-- **Example Request**: `GET https://patents-openapi.helga-eross.workers.dev/inventors/kara.pal@gmail.com`
+### 7. Get inventor by ID or email (GET /inventors/{identifier})
+- **Description**: Retrieves details of an inventor by their ID or email.
+- **Example Request**: `GET /inventors/kara.pal@gmail.com`
 - **Example Response**:
   ```json
   {
       "id": "1",
       "name": "Kara Pál",
       "email": "kara.pal@gmail.com",
-      "created_at": "2022-01-01T00:00:00Z",
-      "updated_at": "2022-01-01T00:00:00Z"
+      "created_at": "2021-01-01T00:00:00Z",
+      "updated_at": "2021-01-01T00:00:00Z"
   }
   ```
-- **Parameter Explanation**:
-  - `identifier`: Inventor ID or email address (required).
 - **HTTP Status Codes**:
-  - `200`: Successful retrieval of inventor details.
-  - `404`: Inventor not found.
+  - `200`: Success
+  - `404`: Inventor not found
 
-### Get Inventor's Patents (GET /inventors/{identifier}/patents)
-- **Description**: Retrieves patents associated with a specific inventor.
-- **Example Request**: `GET https://patents-openapi.helga-eross.workers.dev/inventors/kara.pal@gmail.com/patents`
+### 8. Get inventor's patents (GET /inventors/{identifier}/patents)
+- **Description**: Retrieves all patents associated with a specific inventor.
+- **Example Request**: `GET /inventors/kara.pal@gmail.com/patents`
 - **Example Response**:
   ```json
   [
@@ -189,12 +174,10 @@ This API allows users to access and manage pharmaceutical patents and their inve
           "id": "1",
           "publication_number": "20170183334",
           "title": "DASATINIB SALTS",
-          "abstract": "An innovative salt form of Dasatinib."
+          "abstract": "Abstract of the patent."
       }
   ]
   ```
-- **Parameter Explanation**:
-  - `identifier`: Inventor ID or email address (required).
 - **HTTP Status Codes**:
-  - `200`: Successful retrieval of inventor's patents.
-  - `404`: Inventor not found.
+  - `200`: Success
+  - `404`: Inventor not found

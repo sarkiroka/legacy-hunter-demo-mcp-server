@@ -37,28 +37,24 @@ export class MyMCP extends McpAgent {
         );
 
         this.server.tool(
-            "addNewPatent",
-            {
-                patent: z.object({
-                    publication_number: z.string(),
-                    title: z.string(),
-                    abstract: z.string().optional(),
-                    type: z.enum(["Application", "Grant"]).optional(),
-                    filing_date: z.string().optional(),
-                    publication_date: z.string().optional(),
-                    applicant: z.string().optional(),
-                    assignee: z.string().optional(),
-                    inventors: z.array(z.string()).optional(),
-                }).describe("Patent input data"),
-            },
-            async ({ patent }) => {
+            "createPatent",
+            z.object({
+                publication_number: z.string().describe("Patent publication number"),
+                title: z.string().describe("Patent title"),
+                abstract: z.string().optional().describe("Patent abstract"),
+                type: z.enum(["Application", "Grant"]).optional().describe("Patent type"),
+                filing_date: z.string().optional().describe("Filing date"),
+                publication_date: z.string().optional().describe("Publication date"),
+                applicant: z.string().optional().describe("Applicant name"),
+                assignee: z.string().optional().describe("Patent assignee"),
+                inventors: z.array(z.string()).optional().describe("Inventor names"),
+            }),
+            async (input) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/patents`, {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(patent),
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(input),
                     });
                     const data = await response.json();
                     return {
@@ -79,9 +75,9 @@ export class MyMCP extends McpAgent {
 
         this.server.tool(
             "getPatentByNumber",
-            {
+            z.object({
                 patentNumber: z.string().describe("Patent publication number"),
-            },
+            }),
             async ({ patentNumber }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/patents/${patentNumber}`);
@@ -104,9 +100,9 @@ export class MyMCP extends McpAgent {
 
         this.server.tool(
             "updatePatent",
-            {
+            z.object({
                 patentNumber: z.string().describe("Patent publication number"),
-                patent: z.object({
+                data: z.object({
                     publication_number: z.string().optional(),
                     title: z.string().optional(),
                     abstract: z.string().optional(),
@@ -116,20 +112,18 @@ export class MyMCP extends McpAgent {
                     applicant: z.string().optional(),
                     assignee: z.string().optional(),
                     inventors: z.array(z.string()).optional(),
-                }).describe("Patent input data"),
-            },
-            async ({ patentNumber, patent }) => {
+                }).describe("Patent data to update"),
+            }),
+            async ({ patentNumber, data }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/patents/${patentNumber}`, {
                         method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(patent),
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data),
                     });
-                    const data = await response.json();
+                    const result = await response.json();
                     return {
-                        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
+                        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
                     };
                 } catch (error) {
                     return {
@@ -146,9 +140,9 @@ export class MyMCP extends McpAgent {
 
         this.server.tool(
             "deletePatent",
-            {
+            z.object({
                 patentNumber: z.string().describe("Patent publication number"),
-            },
+            }),
             async ({ patentNumber }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/patents/${patentNumber}`, {
@@ -156,11 +150,12 @@ export class MyMCP extends McpAgent {
                     });
                     if (response.ok) {
                         return {
-                            content: [{ type: "text", text: `Patent ${patentNumber} deleted successfully.` }],
+                            content: [{ type: "text", text: "Patent deleted successfully" }],
                         };
                     } else {
+                        const errorData = await response.json();
                         return {
-                            content: [{ type: "text", text: `Error: Patent not found.` }],
+                            content: [{ type: "text", text: `Error: ${errorData.message}` }],
                         };
                     }
                 } catch (error) {
@@ -201,9 +196,9 @@ export class MyMCP extends McpAgent {
 
         this.server.tool(
             "getInventorByIdOrEmail",
-            {
+            z.object({
                 identifier: z.string().describe("Inventor ID or email address"),
-            },
+            }),
             async ({ identifier }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/inventors/${identifier}`);
@@ -226,9 +221,9 @@ export class MyMCP extends McpAgent {
 
         this.server.tool(
             "getInventorsPatents",
-            {
+            z.object({
                 identifier: z.string().describe("Inventor ID or email address"),
-            },
+            }),
             async ({ identifier }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/inventors/${identifier}/patents`);
