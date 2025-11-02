@@ -12,7 +12,7 @@ export class MyMCP extends McpAgent {
     private baseUrl = "https://patents-openapi.helga-eross.workers.dev";
 
     async init() {
-        // MCP tools based on OpenAPI endpoints
+        // Tool to get all patents
         this.server.tool(
             "getAllPatents",
             {},
@@ -36,8 +36,9 @@ export class MyMCP extends McpAgent {
             }
         );
 
+        // Tool to add a new patent
         this.server.tool(
-            "createPatent",
+            "addNewPatent",
             z.object({
                 publication_number: z.string().describe("Patent publication number"),
                 title: z.string().describe("Patent title"),
@@ -53,7 +54,9 @@ export class MyMCP extends McpAgent {
                 try {
                     const response = await fetch(`${this.baseUrl}/patents`, {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
                         body: JSON.stringify(input),
                     });
                     const data = await response.json();
@@ -73,6 +76,7 @@ export class MyMCP extends McpAgent {
             }
         );
 
+        // Tool to get patent by publication number
         this.server.tool(
             "getPatentByNumber",
             z.object({
@@ -98,11 +102,12 @@ export class MyMCP extends McpAgent {
             }
         );
 
+        // Tool to update patent
         this.server.tool(
             "updatePatent",
             z.object({
                 patentNumber: z.string().describe("Patent publication number"),
-                data: z.object({
+                input: z.object({
                     publication_number: z.string().optional(),
                     title: z.string().optional(),
                     abstract: z.string().optional(),
@@ -112,18 +117,20 @@ export class MyMCP extends McpAgent {
                     applicant: z.string().optional(),
                     assignee: z.string().optional(),
                     inventors: z.array(z.string()).optional(),
-                }).describe("Patent data to update"),
+                }),
             }),
-            async ({ patentNumber, data }) => {
+            async ({ patentNumber, input }) => {
                 try {
                     const response = await fetch(`${this.baseUrl}/patents/${patentNumber}`, {
                         method: "PUT",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(data),
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(input),
                     });
-                    const result = await response.json();
+                    const data = await response.json();
                     return {
-                        content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
+                        content: [{ type: "text", text: JSON.stringify(data, null, 2) }],
                     };
                 } catch (error) {
                     return {
@@ -138,6 +145,7 @@ export class MyMCP extends McpAgent {
             }
         );
 
+        // Tool to delete patent
         this.server.tool(
             "deletePatent",
             z.object({
@@ -155,7 +163,7 @@ export class MyMCP extends McpAgent {
                     } else {
                         const errorData = await response.json();
                         return {
-                            content: [{ type: "text", text: `Error: ${errorData.message}` }],
+                            content: [{ type: "text", text: JSON.stringify(errorData, null, 2) }],
                         };
                     }
                 } catch (error) {
@@ -171,6 +179,7 @@ export class MyMCP extends McpAgent {
             }
         );
 
+        // Tool to get all inventors
         this.server.tool(
             "getAllInventors",
             {},
@@ -194,6 +203,7 @@ export class MyMCP extends McpAgent {
             }
         );
 
+        // Tool to get inventor by ID or email
         this.server.tool(
             "getInventorByIdOrEmail",
             z.object({
@@ -219,6 +229,7 @@ export class MyMCP extends McpAgent {
             }
         );
 
+        // Tool to get inventor's patents
         this.server.tool(
             "getInventorsPatents",
             z.object({
